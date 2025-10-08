@@ -1,0 +1,131 @@
+table _Measures
+	lineageTag: 1d4f61ca-70cf-41e9-b25b-9275fdbf18d8
+
+	measure 'Total Workout' = COUNTROWS(Workout)
+		formatString: #,0
+		displayFolder: Workout
+		lineageTag: 257f1483-0c05-44f6-b974-c133ae77141c
+
+	measure 'Female Workout' = CALCULATE([Total Workout], 'Member'[Gender] = "F")
+		formatString: #,0
+		displayFolder: Workout
+		lineageTag: 387c4e44-a398-4edc-9a1c-e201a24ec680
+
+	measure 'Male Workout' = CALCULATE([Total Workout], 'Member'[Gender] = "M")
+		formatString: #,0
+		displayFolder: Workout
+		lineageTag: 3375a75c-5f34-4e5b-9af0-a9b1038af65b
+
+	measure 'Total Member' = COUNTROWS('Member')
+		formatString: #,0
+		displayFolder: Member
+		lineageTag: 9712e8a7-567a-4255-9a0e-7f12c057a1af
+
+	measure 'Male Member' = CALCULATE([Total Member], 'Member'[Gender] = "M")
+		formatString: 0
+		displayFolder: Member
+		lineageTag: b84f444e-fd18-48cb-a782-07ffb12616ee
+
+	measure 'Female Member' = CALCULATE([Total Member], 'Member'[Gender] = "F")
+		formatString: 0
+		displayFolder: Member
+		lineageTag: 50ad6584-b360-482c-afe6-ecf7fcb4c3e7
+
+	measure 'Single Member' = CALCULATE([Total Member], 'Member'[Marital_Status] = "S")
+		formatString: 0
+		displayFolder: Member
+		lineageTag: ab9009d7-cc2f-416b-a942-8aa9a1e170f7
+
+	measure 'Married Member' = CALCULATE([Total Member], 'Member'[Marital_Status] = "M")
+		formatString: 0
+		displayFolder: Member
+		lineageTag: 739b46ee-0241-4361-bc2e-9d69effc2508
+
+	measure '% Total Workout Rest' =
+			VAR _diff = [Total Member] - [Total Workout]
+			            RETURN
+			                DIVIDE(_diff, [Total Member])
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Workout
+		lineageTag: 85da43a9-1c91-4cb6-9631-11002d6f3d1f
+
+	measure '% Total Workout' = DIVIDE([Total Member],[Total Workout])
+		formatString: 0.0
+		displayFolder: Workout
+		lineageTag: de8600a2-626e-432f-a4b6-1c2c0d01d9e2
+
+	measure 'For Divider' = ""
+		displayFolder: Workout
+		lineageTag: 5175fed2-c96c-4a36-993f-0fb5caf0ed08
+
+	measure '% Time Member' = ```
+			VAR _totmem = CALCULATE([Total Workout], all('Date'), ALL(Location), ALL('Member'), all(Workout))
+			                
+			                RETURN
+			                    divide([Total Workout], _totmem)
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Workout
+		lineageTag: c7f47573-8e4a-4031-821b-ed9ac39971d3
+
+	measure '% Time Member Rest' =
+			VAR _totmem = CALCULATE([Total Workout], all('Date'), ALL(Location), ALL('Member'), all(Workout))
+			                RETURN
+			                    divide(_totmem - [Total Workout], _totmem)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Workout
+		lineageTag: f10677aa-5c8b-4b50-bb96-cad6eceb4513
+
+	measure '% Age Member Rest' =
+			VAR _totmem = CALCULATE([Total Workout], all('Date'), ALL(Location), ALL('Member'), all(Workout))
+			                RETURN
+			                    divide(_totmem - [Total Workout], _totmem)
+		displayFolder: Workout
+		lineageTag: c4118dad-5e73-4d48-8c70-2e2ad3a0bc43
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure MoM =
+			IF(NOT (ISBLANK([Previous Month WO])),
+			    FORMAT([Total Workout] - [Previous Month WO], "#,#0;(-#,#0)")
+			        )
+		displayFolder: MoM
+		lineageTag: 565bf033-6eb0-4a7f-9c7a-deb3764e4303
+
+	measure 'Previous Month WO' =
+			IF(NOT (ISBLANK([Total Workout]))
+			                        ,CALCULATE([Total Workout]
+			                        ,PREVIOUSMONTH('Date'[Date]) ) )
+		formatString: 0
+		displayFolder: MoM
+		lineageTag: 61ed830f-da90-41aa-9f0b-618642fbdcf5
+
+	measure '% MoM' =
+			VAR __prev = DIVIDE([Total Workout] - [Previous Month WO], [Previous Month WO])
+			        RETURN
+			            IF(NOT (ISBLANK([Previous Month WO])),
+			                IF(__prev > 0,
+			                "⬆️" & FORMAT(__prev, "#,#0%;(-#,#0%)"),
+			                "⬇️" & FORMAT(__prev, "#,#0%;(-#,#0%)")
+			            ))
+		displayFolder: MoM
+		lineageTag: 4182d951-e3ed-4ccf-a7b5-cbbec069d81a
+
+	measure 'Mom Color' =
+			if(NOT (ISBLANK([Previous Month WO])),
+			                if ([Previous Month WO] < [Total Workout],"Green", "Red"))
+		displayFolder: MoM
+		lineageTag: 57105a4f-ab57-47bf-96ad-aa988e5c07ae
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Column1"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+

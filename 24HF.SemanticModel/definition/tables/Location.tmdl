@@ -1,0 +1,41 @@
+table Location
+	lineageTag: bf8910e2-9381-49c7-8221-2223607919ea
+
+	column LocationID
+		dataType: string
+		lineageTag: fac382af-a67e-4159-b5fc-6a41c5597108
+		summarizeBy: none
+		sourceColumn: LocationID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Location
+		dataType: string
+		lineageTag: 228e2660-54ba-4a50-92ad-98f5dc85f395
+		summarizeBy: none
+		sourceColumn: Location
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: 38022b63-38dd-4c0f-84b6-f95c3460423e
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Location = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Databases("billieserver.database.windows.net"),
+				    #"24HF" = Source{[Name="24HF_SSMS"]}[Data],
+				    dbo_tblLocation = #"24HF"{[Schema="dbo",Item="tblLocation"]}[Data]
+				in
+				    dbo_tblLocation
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

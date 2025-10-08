@@ -1,0 +1,86 @@
+table Date
+	lineageTag: 966c6bb8-70fd-4d3f-8110-5212af1c3624
+	dataCategory: Time
+
+	column Date
+		isKey
+		formatString: General Date
+		lineageTag: b82be4f5-ece3-4def-b91c-b4a55283dfe8
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthNumber
+		formatString: 0
+		lineageTag: 416c3e9e-e619-4f25-a732-ce80f921f052
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [MonthNumber]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		lineageTag: ad82d97a-876d-4b64-95f6-26dcfc672bd4
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month]
+		sortByColumn: MonthNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column Day
+		formatString: 0
+		lineageTag: dabd6b7a-cd80-46e7-a40f-f4ce846bf4df
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		formatString: 0
+		lineageTag: 1d1f71a8-3431-4820-afd4-7960e0a1f44a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column LabelMoM
+		lineageTag: 11b9c47c-aaac-492b-87b3-5e2954704c6a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [LabelMoM]
+		sortByColumn: MonthNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Date = calculated
+		mode: import
+		source =
+				VAR _cal = CALENDAR("01/01/2025", "12/31/2025")
+				        RETURN
+				            ADDCOLUMNS(_cal,
+				                "MonthNumber", MONTH([Date]),
+				                "Month", FORMAT([Date], "mmm"),
+				                "Day", DAY([Date]),
+				                "Year", YEAR([Date]),
+				                "LabelMoM", SWITCH(True(),
+				                            MONTH([Date]) = 1, "Jan",
+				                            MONTH([DATE]) = 2, "Feb - Jan",
+				                            MONTH([DATE]) = 3, "Mar - Feb",
+				                            MONTH([DATE]) = 4, "Apr - Mar",
+				                            MONTH([DATE]) = 5, "May - Apr",
+				                            MONTH([DATE]) = 6, "Jun - May",
+				                            MONTH([DATE]) = 7, "Jul - Jun",
+				                            MONTH([DATE]) = 8, "Aug - Jul",
+				                            MONTH([DATE]) = 9, "Sep - Aug",
+				                            MONTH([DATE]) = 10, "Oct - Sep",
+				                            MONTH([DATE]) = 11, "Nov - Oct",
+				                            MONTH([DATE]) = 12, "Dec - Nov")
+				            )
+
+	annotation PBI_Id = 2aa2236b767f4b56bb57c1e03c8782c8
+

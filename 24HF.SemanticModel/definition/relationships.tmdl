@@ -1,0 +1,12 @@
+relationship AutoDetected_8d6404f4-bab0-46b9-a714-c8795aea0a42
+	fromColumn: Workout.LocationID
+	toColumn: Location.LocationID
+
+relationship AutoDetected_529af273-23c6-4fc0-ad9c-2a53b71c01be
+	fromColumn: Workout.MemberID
+	toColumn: Member.MemberID
+
+relationship fd31e8c1-1056-e763-5476-eabf58d9a245
+	fromColumn: Workout.Workout_Date_Time
+	toColumn: Date.Date
+

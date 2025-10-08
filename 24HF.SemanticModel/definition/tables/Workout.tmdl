@@ -1,0 +1,178 @@
+table Workout
+	lineageTag: 1a7b3886-56d7-4094-aa51-e72733999ebb
+
+	measure 'Number of Workouts' = "Total Workouts"
+		lineageTag: 9de0dcbc-2aa9-40f7-a967-1684a0943ed0
+
+	column MemberID
+		dataType: string
+		lineageTag: 29e57348-0f80-4d49-983a-409f1e4da3cb
+		summarizeBy: none
+		sourceColumn: MemberID
+
+		annotation SummarizationSetBy = Automatic
+
+	column LocationID
+		dataType: string
+		lineageTag: 8d220c5d-f07b-4bba-85fe-da0898400b10
+		summarizeBy: none
+		sourceColumn: LocationID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Workout_Date_Time
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: b27411b8-2ddb-4586-af55-ad0ab33c1aea
+		summarizeBy: none
+		sourceColumn: Workout_Date_Time
+
+		annotation SummarizationSetBy = Automatic
+
+	column Hour
+		dataType: string
+		lineageTag: 95f319fd-df95-4d28-a3aa-d23946845a1b
+		summarizeBy: none
+		sourceColumn: Hour
+		sortByColumn: 'Sort Hour'
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation __PBI_SemanticLinks = [{"LinkTarget":{"TableName":"Workout","TableItemName":"Hour (groups)","ObjectType":4},"LinkType":"UsedInGroup"}]
+
+	column 'Sort Hour Groups' =
+			SWITCH(TRUE(),
+			                    Workout[Hour] = "6 pm" || Workout[Hour] = "7 pm" || Workout[Hour] = "8 pm" || Workout[Hour] = "9 pm" ,"4",
+			                    Workout[Hour] = "2 pm" || Workout[Hour] = "3 pm" || Workout[Hour] = "4 pm" || Workout[Hour] = "5 pm" ,"3",
+			                    Workout[Hour] = "10 am" || Workout[Hour] = "11 am" || Workout[Hour] = "12 pm" || Workout[Hour] = "1 pm" ,"2",
+			                     "1")
+		dataType: int64
+		formatString: 0
+		lineageTag: 497d12db-58f9-475b-9a9e-161afaa30e21
+		summarizeBy: sum
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Hour (groups)' =
+			SWITCH(
+				TRUE,
+				ISBLANK('Workout'[Hour]),
+				"(Blank)",
+				'Workout'[Hour] IN {"1 pm",
+					"10 am",
+					"11 am",
+					"12 pm"},
+				"10 am - 1 pm",
+				'Workout'[Hour] IN {"2 pm",
+					"3 pm",
+					"4 pm",
+					"5 pm"},
+				"2 pm - 5 pm",
+				'Workout'[Hour] IN {"5 am",
+					"6 am",
+					"7 am",
+					"8 am",
+					"9 am"},
+				"5 am - 9 am",
+				'Workout'[Hour] IN {"6 pm",
+					"7 pm",
+					"8 pm",
+					"9 pm"},
+				"6 pm - 9 pm",
+				'Workout'[Hour]
+			)
+		lineageTag: 6d81b022-b131-4f4a-8aac-83f933147896
+		summarizeBy: none
+		sortByColumn: 'Sort Hour Groups'
+
+		extendedProperty GroupingMetadata =
+				{
+				  "version": 0,
+				  "groupedColumns": [
+				    {
+				      "Column": {
+				        "Expression": {
+				          "SourceRef": {
+				            "Entity": "Workout"
+				          }
+				        },
+				        "Property": "Hour"
+				      }
+				    }
+				  ]
+				}
+
+		changedProperty = SortByColumn
+
+		annotation GroupingDesignState = {"Version":0,"Sources":[{"Name":"w","Entity":"Workout"}],"GroupedColumns":[{"Column":{"Expression":{"SourceRef":{"Source":"w"}},"Property":"Hour"}}],"GroupItems":[{"DisplayName":"(Blank)","BlankDefaultPlaceholder":true},{"DisplayName":"10 am - 1 pm","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"w"}},"Property":"Hour"}}],"Values":[[{"Literal":{"Value":"'1 pm'"}}],[{"Literal":{"Value":"'10 am'"}}],[{"Literal":{"Value":"'11 am'"}}],[{"Literal":{"Value":"'12 pm'"}}]]}}},{"DisplayName":"2 pm - 5 pm","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"w"}},"Property":"Hour"}}],"Values":[[{"Literal":{"Value":"'2 pm'"}}],[{"Literal":{"Value":"'3 pm'"}}],[{"Literal":{"Value":"'4 pm'"}}],[{"Literal":{"Value":"'5 pm'"}}]]}}},{"DisplayName":"5 am - 9 am","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"w"}},"Property":"Hour"}}],"Values":[[{"Literal":{"Value":"'5 am'"}}],[{"Literal":{"Value":"'6 am'"}}],[{"Literal":{"Value":"'7 am'"}}],[{"Literal":{"Value":"'8 am'"}}],[{"Literal":{"Value":"'9 am'"}}]]}}},{"DisplayName":"6 pm - 9 pm","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"w"}},"Property":"Hour"}}],"Values":[[{"Literal":{"Value":"'6 pm'"}}],[{"Literal":{"Value":"'7 pm'"}}],[{"Literal":{"Value":"'8 pm'"}}],[{"Literal":{"Value":"'9 pm'"}}]]}}}]}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sort Hour'
+		dataType: double
+		lineageTag: 5ca5053a-47af-41a2-8352-03cc5e032a30
+		summarizeBy: sum
+		sourceColumn: Sort Hour
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Index
+		dataType: string
+		lineageTag: c223405c-16a4-4b73-80fc-31cb4a9ea945
+		summarizeBy: none
+		sourceColumn: Index
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Hour (groups) Hierarchy'
+		lineageTag: 233a6865-d460-4c5f-bee8-ead16786b36b
+
+		level 'Hour (groups)'
+			lineageTag: cccd8575-2cd0-49e7-a37c-8dad2053c736
+			column: 'Hour (groups)'
+
+		level Hour
+			lineageTag: 52cb3ff1-041d-4e16-929d-5792fce55b24
+			column: Hour
+
+	partition Workout = m
+		mode: import
+		source = ```
+				let
+				    Source = Sql.Databases("billieserver.database.windows.net"),
+				    #"24HF" = Source{[Name="24HF_SSMS"]}[Data],
+				    dbo_tblWorkout = #"24HF"{[Schema="dbo",Item="tblWorkout"]}[Data],
+				    #"Inserted Hour" = Table.AddColumn(dbo_tblWorkout, "Hour",
+				    each if Time.Hour([Workout_Date_Time]) < 12 
+				    then Text.From(Time.Hour([Workout_Date_Time])) & " am"
+				    else if Time.Hour([Workout_Date_Time]) = 12 
+				    then Text.From(Time.Hour([Workout_Date_Time])) & " pm"
+				    else Text.From(Time.Hour([Workout_Date_Time]) - 12) & " pm", type text),
+				    #"Extracted Date" = Table.TransformColumns(#"Inserted Hour",{{"Workout_Date_Time", DateTime.Date, type date}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Extracted Date",{{"Workout_Date_Time", type datetime}}),
+				    #"Added Conditional Column" = Table.AddColumn(#"Changed Type", "Sort Hour", 
+				    each if [Hour] = "5 am" then 1 else if [Hour] = "6 am" then 2 
+				    else if [Hour] = "7 am" then 3 else if [Hour] = "8 am" then 4 
+				    else if [Hour] = "9 am" then 5 else if [Hour] = "10 am" then 6 
+				    else if [Hour] = "11 am" then 7 else if [Hour] = "12 pm" then 8 
+				    else if [Hour] = "1 pm" then 9 else if [Hour] = "2 pm" then 10 
+				    else if [Hour] = "3 pm" then 11 else if [Hour] = "4 pm" then 12 
+				    else if [Hour] = "5 pm" then 13 else if [Hour] = "6 pm" then 14 
+				    else if [Hour] = "7 pm" then 15 else if [Hour] = "8 pm" then 16 
+				    else  17, type number),
+				    #"Added Index" = Table.AddIndexColumn(#"Added Conditional Column", "Index", 1, 1, Int64.Type),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Added Index",{{"Index", type text}})
+				in
+				    #"Changed Type1"
+				```
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
